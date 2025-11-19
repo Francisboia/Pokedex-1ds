@@ -1,15 +1,21 @@
 const getPokemonUrl = id => `https://pokeapi.co/api/v2/pokemon/${id}`
-const generatePokemonPromises = () => Array(150).fill().map((_, index) =>
-  (fetch(getPokemonUrl(index + 1)).then(response => response.json()))
+
+// Agora busca 151 Pokémon (incluindo o Mew)
+const generatePokemonPromises = () => Array(151).fill().map((_, index) =>
+  fetch(getPokemonUrl(index + 1)).then(response => response.json())
 )
 
 const generateHTML = pokemons => {
-  return pokemons.reduce((accumulator, { name, id, types }) => {
+  return pokemons.reduce((accumulator, { name, id, types, sprites }) => {
+
     const elementTypes = types.map(typeInfo => typeInfo.type.name)
+
+    // Pegando a imagem oficial da PokéAPI
+    const image = sprites.other["official-artwork"].front_default
 
     accumulator += `
       <li class="card ${elementTypes[0]}">
-      <img class="card-image alt="${name}" src="https://pokeres.bastionbot.org/images/pokemon/${id}.png"</img>
+        <img class="card-image" alt="${name}" src="${image}" />
         <h2 class="card-title">${id}. ${name}</h2>
         <p class="card-subtitle">${elementTypes.join(" | ")}</p>
       </li>
@@ -28,7 +34,3 @@ const pokemonPromises = generatePokemonPromises()
 Promise.all(pokemonPromises)
   .then(generateHTML)
   .then(insertPokemonsIntoPage)
-
-
-
-
